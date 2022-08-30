@@ -1,15 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(TankController))]
 public class Player : MonoBehaviour
 {
     [SerializeField] int _maxHealth = 3;
     int _currentHealth;
+    int _currentTreasure;
+
+    public Text scoreText;
 
     TankController _tankController;
 
+    bool _inv = false;
     private void Awake()
     {
         _tankController = GetComponent<TankController>();
@@ -17,6 +22,7 @@ public class Player : MonoBehaviour
     void Start()
     {
         _currentHealth = _maxHealth;
+        scoreText.text = "Treasure Amount: " + _currentTreasure.ToString();
     }
 
 
@@ -34,8 +40,11 @@ public class Player : MonoBehaviour
 
     public void DecreaseHealth(int amount)
     {
-        _currentHealth -= amount;
-        Debug.Log("Player's health: " + _currentHealth);
+        if(_inv != true)
+        {
+            _currentHealth -= amount;
+            Debug.Log("Player's health: " + _currentHealth);
+        }
         if(_currentHealth <= 0)
         {
             Kill();
@@ -47,5 +56,34 @@ public class Player : MonoBehaviour
         gameObject.SetActive(false);
         //play particles
         //play sounds
+    }
+
+    public void Slow()
+    {
+        TankController controller = this.GetComponent<TankController>();
+        if (controller != null)
+        {
+            controller.MaxSpeed = controller.MaxSpeed/2;
+        }
+    }
+
+    public void IncreaseTreasure(int amount)
+    {
+        _currentTreasure += amount;
+        scoreText.text = "Treasure Amount: " + _currentTreasure.ToString();
+        Debug.Log("Player's treasure: " + _currentTreasure);
+    }
+
+    public void InvincibilityPowerUp()
+    {
+        _inv = !_inv;
+        StartCoroutine(Timer());
+        
+    }
+
+    IEnumerator Timer()
+    {
+        yield return new WaitForSeconds(5);
+        _inv = !_inv;
     }
 }
